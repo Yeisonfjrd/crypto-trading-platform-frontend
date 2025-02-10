@@ -1,0 +1,29 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 200 200"
+  width="200"
+  height="200"
+  fill="none"
+>
+  <!-- Fondo circular -->
+  <circle cx="100" cy="100" r="90" stroke="#646cff" strokeWidth="4" fill="transparent" />
+
+  <!-- Líneas de gráfico -->
+  <path
+    d="M20,150 C50,100 80,50 120,80 C150,110 180,140 180,180"
+    stroke="#646cff"
+    strokeWidth="4"
+    fill="transparent"
+  />
+
+  <!-- Puntos de datos -->
+  <circle cx="20" cy="150" r="6" fill="#646cff" />
+  <circle cx="80" cy="50" r="6" fill="#646cff" />
+  <circle cx="120" cy="80" r="6" fill="#646cff" />
+  <circle cx="180" cy="140" r="6" fill="#646cff" />
+
+  <!-- Texto "CryptoSync" -->
+  <text x="100" y="190" fontSize="14" textAnchor="middle" fill="#ffffff">
+    CryptoSync
+  </text>
+</svg>
