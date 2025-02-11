@@ -1,52 +1,64 @@
-"use client"
+'use client'
 
 import type React from "react"
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Skeleton } from "./ui/skeleton"
-import { AlertCircle, TrendingUp, TrendingDown, Bitcoin, EclipseIcon as Ethereum } from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert"
+import { TrendingUp, TrendingDown, Bitcoin } from "lucide-react"
 
-interface CryptoPrice {
-  usd: number
-  usd_24h_change: number
+// Datos mock para cuando la API falle
+const mockData = {
+  bitcoin: {
+    usd: 45000,
+    usd_24h_change: 2.5
+  },
+  ethereum: {
+    usd: 2800,
+    usd_24h_change: -1.2
+  }
 }
 
-interface CryptoPricesData {
-  bitcoin: CryptoPrice
-  ethereum: CryptoPrice
+// Definir tipo de los precios de las criptomonedas
+type CryptoPricesData = {
+  bitcoin: {
+    usd: number
+    usd_24h_change: number
+  }
+  ethereum: {
+    usd: number
+    usd_24h_change: number
+  }
 }
 
 const CryptoPrices: React.FC = () => {
   const [prices, setPrices] = useState<CryptoPricesData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchPrices = async () => {
       try {
         const response = await fetch("http://localhost:3001/api/crypto-prices")
         if (!response.ok) {
-          throw new Error(`Error fetching crypto prices: ${response.statusText}`)
+          // Si el servidor falla, usar datos mock
+          setPrices(mockData)
+          return
         }
         const data = await response.json()
         setPrices(data)
       } catch (err) {
         console.error("Error fetching crypto prices:", err)
-        setError("Error al cargar los precios de criptomonedas. Por favor, intente de nuevo más tarde.")
+        // En caso de error, usar datos mock
+        setPrices(mockData)
       } finally {
         setIsLoading(false)
       }
     }
 
     fetchPrices()
-    // Set up an interval to fetch prices every 60 seconds
     const intervalId = setInterval(fetchPrices, 60000)
-
-    // Clean up the interval on component unmount
     return () => clearInterval(intervalId)
   }, [])
-
+  
   if (isLoading) {
     return (
       <Card>
@@ -58,16 +70,6 @@ const CryptoPrices: React.FC = () => {
           <Skeleton className="h-[100px] w-full" />
         </CardContent>
       </Card>
-    )
-  }
-
-  if (error) {
-    return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
     )
   }
 
@@ -86,9 +88,10 @@ const CryptoPrices: React.FC = () => {
                 price={prices.bitcoin.usd}
                 change={prices.bitcoin.usd_24h_change}
               />
+              {/* Agregar un ícono personalizado para Ethereum si es necesario */}
               <PriceDisplay
                 name="Ethereum"
-                icon={<Ethereum className="h-6 w-6" />}
+                icon={<div className="h-6 w-6">🔵</div>}
                 price={prices.ethereum.usd}
                 change={prices.ethereum.usd_24h_change}
               />
@@ -134,3 +137,4 @@ const PriceDisplay: React.FC<PriceDisplayProps> = ({ name, icon, price, change }
 }
 
 export default CryptoPrices
+

@@ -3,7 +3,8 @@
 import type React from "react"
 import { useEffect, useState, useRef } from "react"
 import { useAuth } from "@clerk/clerk-react"
-import { Loader2, LayoutDashboard, LineChart, Wallet, History } from "lucide-react"
+import { motion } from "framer-motion"
+import { Loader2, LayoutDashboard, LineChart, History, Brain, PlayCircle, MessageCircle  } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
 import { ScrollArea } from "../components/ui/scroll-area"
@@ -16,6 +17,9 @@ import OrderHistory from "./OrderHistory"
 import PriceChart from "./PriceChart"
 import Markets from './Markets';
 import CryptoNews from './CryptoNews';
+import AIAnalytics from './AIAnalytics';
+import SimulatorDashboard from './SimulatorDashboard';
+import Chatbot from './Chatbot'
 
 interface PriceUpdate {
     pair: string
@@ -140,8 +144,9 @@ const Dashboard: React.FC = () => {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-        <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="bg-white dark:bg-gray-800 p-1 rounded-lg shadow-md">
+        <Tabs defaultValue="overview" className="space-y-6">
+          <div className="sticky top-0 z-10 bg-gradient-to-b from-gray-50 to-transparent dark:from-gray-900 pb-4">
+          <TabsList className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-1 rounded-lg shadow-md flex flex-wrap justify-start gap-2">
             <TabsTrigger
               value="overview"
               className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-700"
@@ -150,36 +155,58 @@ const Dashboard: React.FC = () => {
               Vista General
             </TabsTrigger>
             <TabsTrigger
-              value="trading"
+              value="ai-analytics"
               className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-700"
             >
-              <LineChart className="h-4 w-4 mr-2" />
-              Trading
+              <Brain className="h-4 w-4 mr-2" />
+              AI Analytics
             </TabsTrigger>
             <TabsTrigger
-              value="portfolio"
+              value="simulator"
               className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-700"
             >
-              <Wallet className="h-4 w-4 mr-2" />
-              Portafolio
+              <PlayCircle className="h-4 w-4 mr-2" />
+              Simulador
             </TabsTrigger>
-            <TabsTrigger
-              value="history"
-              className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-700"
-            >
-              <History className="h-4 w-4 mr-2" />
-              Historial
-            </TabsTrigger>
-          </TabsList>
+              <TabsTrigger
+                value="trading"
+                className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-700"
+              >
+                <LineChart className="h-4 w-4 mr-2" />
+                Trading
+              </TabsTrigger>
+              <TabsTrigger
+                value="history"
+                className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-700"
+              >
+                <History className="h-4 w-4 mr-2" />
+                Historial
+              </TabsTrigger>
+              <TabsTrigger
+                value="chatbot"
+                className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-700"
+              >
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Chatbot
+              </TabsTrigger>
+            </TabsList>
+          </div>
+  
+          <div className="relative">
+            {isLoading && (
+              <div className="absolute inset-0 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50">
+                <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+              </div>
+            )}
 
           <TabsContent value="overview" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <UserStats />
-              <CryptoPrices />
-              <Markets />
-              <CryptoNews className="w-80 mx-auto" />
-            </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+          >
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
               <Card className="col-span-4">
                 <CardHeader>
                   <CardTitle>Gráfico de Precios</CardTitle>
@@ -197,9 +224,22 @@ const Dashboard: React.FC = () => {
                 </CardContent>
               </Card>
             </div>
+          </motion.div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <UserStats />
+              <CryptoPrices />
+              <Markets />
+              <CryptoNews className="w-80 mx-auto" />
+            </div>
           </TabsContent>
 
           <TabsContent value="trading" className="space-y-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+          >
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               <Card className="col-span-2">
                 <CardHeader>
@@ -218,9 +258,16 @@ const Dashboard: React.FC = () => {
                 </CardContent>
               </Card>
             </div>
+          </motion.div>
           </TabsContent>
 
           <TabsContent value="portfolio">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+          >
             <Card>
               <CardHeader>
                 <CardTitle>Tu Portafolio</CardTitle>
@@ -230,9 +277,16 @@ const Dashboard: React.FC = () => {
                 <Portfolio />
               </CardContent>
             </Card>
+          </motion.div>
           </TabsContent>
 
           <TabsContent value="history">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+          >
             <Card>
               <CardHeader>
                 <CardTitle>Historial de Órdenes</CardTitle>
@@ -244,7 +298,74 @@ const Dashboard: React.FC = () => {
                 </ScrollArea>
               </CardContent>
             </Card>
+          </motion.div>
           </TabsContent>
+          <TabsContent value="ai-analytics">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+          >
+          <div className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Análisis de Mercado AI</CardTitle>
+                <CardDescription>
+                  Análisis avanzado del mercado usando inteligencia artificial
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AIAnalytics />
+              </CardContent>
+            </Card>
+          </div>
+          </motion.div>
+          </TabsContent>
+
+          <TabsContent value="simulator">
+            <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            >
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Simulador de Trading</CardTitle>
+                  <CardDescription>
+                    Practica tus estrategias de trading sin riesgo
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <SimulatorDashboard />
+                </CardContent>
+              </Card>
+            </div>
+            </motion.div>
+          </TabsContent>
+          <TabsContent value="chatbot" className="space-y-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Chatbot</CardTitle>
+                    <CardDescription>Interactúa con el chatbot para obtener asistencia en el trading</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Chatbot />
+                  </CardContent>
+                </Card>
+              </div>
+            </motion.div>
+          </TabsContent>
+          </div>
         </Tabs>
       </div>
     </div>
