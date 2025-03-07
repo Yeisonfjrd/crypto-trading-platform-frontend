@@ -28,7 +28,7 @@ const DemoAccount: React.FC = () => {
     const fetchDemoData = async () => {
       try {
         const token = await getToken()
-        const response = await fetch(`${process.env.VITE_BACKEND_URL}/api/demo-account`,{
+        const response = await fetch(`https://crypto-trading-platform-backend.onrender.com/api/demo-account`,{
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         })

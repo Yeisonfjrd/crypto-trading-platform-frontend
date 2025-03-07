@@ -25,7 +25,7 @@ const OrderBook: React.FC = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch(`${process.env.VITE_BACKEND_URL}/api/order-book`,)
+        const response = await fetch(`https://crypto-trading-platform-backend.onrender.com/api/order-book`,)
         if (!response.ok) {
           throw new Error('Failed to fetch order book')
         }

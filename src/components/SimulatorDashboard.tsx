@@ -134,7 +134,6 @@ const SimulatorDashboard: React.FC = () => {
   <h2 className="text-3xl font-bold text-center">Simulador de Trading</h2>
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-6">
 
-    {/* Card: Balance */}
     <Card className="md:col-span-4 sm:col-span-2">
       <CardHeader>
         <CardTitle>Balance</CardTitle>
@@ -152,7 +151,6 @@ const SimulatorDashboard: React.FC = () => {
       </CardContent>
     </Card>
 
-    {/* Card: Nueva Operación */}
     <Card className="md:col-span-8 sm:col-span-2">
       <CardHeader>
         <CardTitle>Nueva Operación</CardTitle>

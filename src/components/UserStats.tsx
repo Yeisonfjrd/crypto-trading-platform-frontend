@@ -25,8 +25,8 @@ const UserStats: React.FC = () => {
       try {
         const token = await getToken();
         console.log('Token:', token);
-        console.log('Fetching from:', `${process.env.VITE_BACKEND_URL}/api/stats`);
-        const response = await fetch(`${process.env.VITE_BACKEND_URL}/api/stats`, {
+        console.log('Fetching from:', `https://crypto-trading-platform-backend.onrender.com/api/stats`);
+        const response = await fetch(`https://crypto-trading-platform-backend.onrender.com/api/stats`, {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         })

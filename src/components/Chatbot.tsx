@@ -21,7 +21,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ className }) => {
     setMessages([...messages, { sender: "user", text: input }])
 
     try {
-      const { data } = await axios.post(`${process.env.VITE_BACKEND_URL}/api/chatbot`, { message: input })
+      const { data } = await axios.post(`https://crypto-trading-platform-backend.onrender.com/api/chatbot`, { message: input })
       setMessages((prev) => [...prev, { sender: "bot", text: data.response }])
     } catch (error) {
       console.error(error)

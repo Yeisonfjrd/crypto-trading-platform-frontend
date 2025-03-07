@@ -50,7 +50,7 @@ const Dashboard: React.FC = () => {
     let reconnectAttempts = 0;
 
     const connectWebSocket = () => {
-      const backendUrl = process.env.VITE_BACKEND_URL || 'http://localhost:3001';
+      const backendUrl = process.env.VITE_BACKEND_URL || 'https://crypto-trading-platform-backend.onrender.com';
       const wsUrl = backendUrl.replace('https', 'wss').replace('http', 'ws');
       wsRef.current = new WebSocket(wsUrl);
 
@@ -110,7 +110,7 @@ const Dashboard: React.FC = () => {
     const fetchOrders = async () => {
       try {
         const token = await getToken();
-        const url = `${process.env.VITE_BACKEND_URL}/api/orders`;
+        const url = `https://crypto-trading-platform-backend.onrender.com/api/orders`;
         console.log("Fetching orders from:", url);
         const response = await fetch(url, {
           headers: { Authorization: `Bearer ${token}` },

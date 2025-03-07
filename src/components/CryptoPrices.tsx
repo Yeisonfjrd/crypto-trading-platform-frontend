@@ -35,7 +35,7 @@ const CryptoPrices: React.FC = () => {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        const response = await fetch(`${process.env.VITE_BACKEND_URL}/api/crypto-prices`,)
+        const response = await fetch(`https://crypto-trading-platform-backend.onrender.com/api/crypto-prices`,)
         if (!response.ok) {
           setPrices(mockData)
           return

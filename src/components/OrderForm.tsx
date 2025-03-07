@@ -24,7 +24,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
   const { getToken } = useAuth();
 
   useEffect(() => {
-    const backendUrl = process.env.VITE_BACKEND_URL || 'http://localhost:3001';
+    const backendUrl = process.env.VITE_BACKEND_URL || 'https://crypto-trading-platform-backend.onrender.com';
     const wsUrl = backendUrl.replace('https', 'wss').replace('http', 'ws');
     const ws = new WebSocket(wsUrl);
 
@@ -57,7 +57,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
         throw new Error("No se encontró el token de autenticación");
       }
 
-      const url = `${process.env.VITE_BACKEND_URL}/api/orders`;
+      const url = `https://crypto-trading-platform-backend.onrender.com/api/orders`;
       console.log('Submitting order to:', url);
       const response = await fetch(url, {
         method: "POST",
