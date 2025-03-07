@@ -23,7 +23,9 @@ const UserStats: React.FC = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = await getToken()
+        const token = await getToken();
+        console.log('Token:', token);
+        console.log('Fetching from:', `${process.env.VITE_BACKEND_URL}/api/stats`);
         const response = await fetch(`${process.env.VITE_BACKEND_URL}/api/stats`, {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
