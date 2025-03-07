@@ -109,7 +109,7 @@ const Dashboard: React.FC = () => {
         const fetchOrders = async () => {
             try {
                 const token = await getToken()
-                const response = await fetch("http://localhost:3001/api/orders", {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/orders`,{
                     headers: { Authorization: `Bearer ${token}` },
                 })
 

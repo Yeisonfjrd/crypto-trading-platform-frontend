@@ -9,8 +9,6 @@ interface Article {
   url: string;
   urlToImage?: string;
 }
-
-// Añadimos className a las props
 interface CryptoNewsProps {
   className?: string;
 }
@@ -24,7 +22,7 @@ const CryptoNews = ({ className }: CryptoNewsProps) => {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const response = await fetch("http://localhost:3001/api/crypto-news");
+        const response = await fetch(`${process.env.VITE_BACKEND_URL}/api/crypto-news`,);
         if (!response.ok) {
           throw new Error(`Error fetching crypto news: ${response.statusText}`);
         }

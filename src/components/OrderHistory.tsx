@@ -8,9 +8,8 @@ import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 
-// Definir el tipo de los pedidos
 type Order = {
-  id: number  // Cambiar a number en todos lados
+  id: number
   pair: string
   amount: number
   type: "buy" | "sell"

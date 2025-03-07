@@ -7,7 +7,6 @@ import { Skeleton } from "./ui/skeleton"
 import { TrendingUp, TrendingDown, ArrowRight } from "lucide-react"
 import { Box, Grid, Typography } from '@mui/material'
 
-// Mock data para cuando la API falle
 const mockAnalysis = {
   symbol: "BTC",
   trend: {
@@ -22,14 +21,13 @@ const mockAnalysis = {
 
 const mockRecommendations: TradeRecommendation[] = [
   {
-    type: 'buy', // Asegúrate de que esto sea 'buy', 'sell' o 'neutral'
+    type: 'buy',
     confidence: 0.75,
     reason: "Soporte fuerte encontrado",
     price: 42000
   }
 ]
 
-// Definir tipos de `MarketAnalysis` y `TradeRecommendation`
 type MarketAnalysis = {
   symbol: string
   trend: {
@@ -65,7 +63,6 @@ const AIAnalytics: React.FC = () => {
     const fetchData = async () => {
       try {
         setLoading(true)
-        // Intentar obtener datos reales, si falla usar mock
         try {
           const [analysisRes, recsRes] = await Promise.all([
             fetch('/api/ai/analysis/BTC'),
@@ -77,7 +74,6 @@ const AIAnalytics: React.FC = () => {
           setAnalysis(await analysisRes.json())
           setRecommendations(await recsRes.json())
         } catch {
-          // Usar datos mock en caso de error
           setAnalysis(mockAnalysis)
           setRecommendations(mockRecommendations)
         }
@@ -137,7 +133,6 @@ const AIAnalytics: React.FC = () => {
             </Card>
           </Grid>
 
-          {/* Niveles Técnicos */}
           <Grid item xs={12} md={6}>
             <Card>
               <CardContent>
@@ -161,7 +156,6 @@ const AIAnalytics: React.FC = () => {
             </Card>
           </Grid>
 
-          {/* Recomendaciones */}
           <Grid item xs={12}>
             <Card>
               <CardContent>

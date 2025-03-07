@@ -44,7 +44,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
         throw new Error("No se encontró el token de autenticación")
       }
 
-      const response = await fetch("http://localhost:3001/api/orders", {
+      const response = await fetch(`${process.env.VITE_BACKEND_URL}/api/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

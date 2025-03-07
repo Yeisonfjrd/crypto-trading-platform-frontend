@@ -25,7 +25,7 @@ const OrderBook: React.FC = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/order-book')
+        const response = await fetch(`${process.env.VITE_BACKEND_URL}/api/order-book`,)
         if (!response.ok) {
           throw new Error('Failed to fetch order book')
         }

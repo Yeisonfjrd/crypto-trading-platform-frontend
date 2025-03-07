@@ -24,7 +24,7 @@ const UserStats: React.FC = () => {
     const fetchStats = async () => {
       try {
         const token = await getToken()
-        const response = await fetch("http://localhost:3001/api/stats", {
+        const response = await fetch(`${process.env.VITE_BACKEND_URL}/api/stats`, {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         })

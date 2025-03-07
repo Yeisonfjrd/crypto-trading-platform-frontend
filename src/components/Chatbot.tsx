@@ -7,7 +7,6 @@ import { Input } from "./ui/input"
 import { Button } from "./ui/button"
 import axios from "axios"
 
-// Definir las propiedades del chatbot
 interface ChatbotProps {
   className?: string
 }
@@ -16,14 +15,13 @@ const Chatbot: React.FC<ChatbotProps> = ({ className }) => {
   const [messages, setMessages] = useState<{ sender: string; text: string }[]>([])
   const [input, setInput] = useState("")
 
-  // Función para enviar el mensaje
   const sendMessage = async () => {
     if (!input.trim()) return
 
     setMessages([...messages, { sender: "user", text: input }])
 
     try {
-      const { data } = await axios.post("http://localhost:3001/api/chatbot", { message: input })
+      const { data } = await axios.post(`${process.env.VITE_BACKEND_URL}/api/chatbot`, { message: input })
       setMessages((prev) => [...prev, { sender: "bot", text: data.response }])
     } catch (error) {
       console.error(error)

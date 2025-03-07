@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Skeleton } from "./ui/skeleton"
 import { TrendingUp, TrendingDown, Bitcoin } from "lucide-react"
 
-// Datos mock para cuando la API falle
 const mockData = {
   bitcoin: {
     usd: 45000,
@@ -18,7 +17,6 @@ const mockData = {
   }
 }
 
-// Definir tipo de los precios de las criptomonedas
 type CryptoPricesData = {
   bitcoin: {
     usd: number
@@ -37,9 +35,8 @@ const CryptoPrices: React.FC = () => {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        const response = await fetch("http://localhost:3001/api/crypto-prices")
+        const response = await fetch(`${process.env.VITE_BACKEND_URL}/api/crypto-prices`,)
         if (!response.ok) {
-          // Si el servidor falla, usar datos mock
           setPrices(mockData)
           return
         }
@@ -47,7 +44,6 @@ const CryptoPrices: React.FC = () => {
         setPrices(data)
       } catch (err) {
         console.error("Error fetching crypto prices:", err)
-        // En caso de error, usar datos mock
         setPrices(mockData)
       } finally {
         setIsLoading(false)
@@ -88,7 +84,6 @@ const CryptoPrices: React.FC = () => {
                 price={prices.bitcoin.usd}
                 change={prices.bitcoin.usd_24h_change}
               />
-              {/* Agregar un ícono personalizado para Ethereum si es necesario */}
               <PriceDisplay
                 name="Ethereum"
                 icon={<div className="h-6 w-6">🔵</div>}
