@@ -22,7 +22,7 @@ const CryptoNews = ({ className }: CryptoNewsProps) => {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const response = await fetch(`${process.env.VITE_BACKEND_URL}/api/crypto-news`,);
+        const response = await fetch(`https://crypto-trading-platform-backend.onrender.com/api/crypto-news`,);
         if (!response.ok) {
           throw new Error(`Error fetching crypto news: ${response.statusText}`);
         }
