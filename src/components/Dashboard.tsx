@@ -1,148 +1,152 @@
-'use client'
+'use client';
 
-import type React from "react"
-import { useEffect, useState, useRef } from "react"
-import { useAuth } from "@clerk/clerk-react"
-import { motion } from "framer-motion"
-import { Loader2, LayoutDashboard, LineChart, History, Brain, PlayCircle, MessageCircle  } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
-import { ScrollArea } from "../components/ui/scroll-area"
-import UserStats from "./UserStats"
-import DemoAccount from "./DemoAccount"
-import CryptoPrices from "./CryptoPrices"
-import Portfolio from "./Portfolio"
-import OrderForm from "./OrderForm"
-import OrderHistory from "./OrderHistory"
-import PriceChart from "./PriceChart"
+import type React from "react";
+import { useEffect, useState, useRef } from "react";
+import { useAuth } from "@clerk/clerk-react";
+import { motion } from "framer-motion";
+import { Loader2, LayoutDashboard, LineChart, History, Brain, PlayCircle, MessageCircle } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { ScrollArea } from "../components/ui/scroll-area";
+import UserStats from "./UserStats";
+import DemoAccount from "./DemoAccount";
+import CryptoPrices from "./CryptoPrices";
+import Portfolio from "./Portfolio";
+import OrderForm from "./OrderForm";
+import OrderHistory from "./OrderHistory";
+import PriceChart from "./PriceChart";
 import Markets from './Markets';
 import CryptoNews from './CryptoNews';
 import AIAnalytics from './AIAnalytics';
 import SimulatorDashboard from './SimulatorDashboard';
-import Chatbot from './Chatbot'
+import Chatbot from './Chatbot';
 
 interface PriceUpdate {
-    pair: string
-    price: number
-    timestamp: number
+  pair: string;
+  price: number;
+  timestamp: number;
 }
 
 interface Order {
-    id: number
-    pair: string
-    amount: number
-    price: number
-    type: "buy" | "sell"
-    status: "pending" | "completed" | "cancelled"
-    createdAt: string
+  id: number;
+  pair: string;
+  amount: number;
+  price: number;
+  type: "buy" | "sell";
+  status: "pending" | "completed" | "cancelled";
+  createdAt: string;
 }
 
 const Dashboard: React.FC = () => {
-  const [priceUpdates, setPriceUpdates] = useState<PriceUpdate[]>([])
-  const [orders, setOrders] = useState<Order[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const { getToken } = useAuth()
-  const pingInterval = useRef<NodeJS.Timeout | undefined>(undefined)
-  const wsRef = useRef<WebSocket | undefined>(undefined)
+  const [priceUpdates, setPriceUpdates] = useState<PriceUpdate[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { getToken } = useAuth();
+  const pingInterval = useRef<NodeJS.Timeout | undefined>(undefined);
+  const wsRef = useRef<WebSocket | undefined>(undefined);
 
   useEffect(() => {
-    let reconnectTimeout: NodeJS.Timeout | undefined
-    let reconnectAttempts = 0
+    let reconnectTimeout: NodeJS.Timeout | undefined;
+    let reconnectAttempts = 0;
 
     const connectWebSocket = () => {
-        wsRef.current = new WebSocket("ws://localhost:3001")
+      const backendUrl = process.env.VITE_BACKEND_URL || 'http://localhost:3001';
+      const wsUrl = backendUrl.replace('https', 'wss').replace('http', 'ws');
+      wsRef.current = new WebSocket(wsUrl);
 
-        wsRef.current.onopen = () => {
-            console.log("Conectado al WebSocket")
-            reconnectAttempts = 0
-            
-            pingInterval.current = setInterval(() => {
-                if (wsRef.current?.readyState === WebSocket.OPEN) {
-                    wsRef.current.send(JSON.stringify({ type: "ping" }))
-                }
-            }, 15000)
+      wsRef.current.onopen = () => {
+        console.log("Conectado al WebSocket:", wsUrl);
+        reconnectAttempts = 0;
+
+        pingInterval.current = setInterval(() => {
+          if (wsRef.current?.readyState === WebSocket.OPEN) {
+            wsRef.current.send(JSON.stringify({ type: "ping" }));
+          }
+        }, 15000);
+      };
+
+      wsRef.current.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === "pong") return;
+
+          if (data.type === "price_update") {
+            setPriceUpdates(prev => [...prev, data]);
+          } else if (data.type === "order_completed") {
+            setOrders(prevOrders =>
+              prevOrders.map(order => {
+                const completedOrder = data.orders.find((completed: Order) => completed.id === order.id);
+                return completedOrder ? { ...order, status: completedOrder.status } : order;
+              })
+            );
+          }
+        } catch (error) {
+          console.error("Error parsing WebSocket message:", error);
+        }
+      };
+
+      wsRef.current.onclose = () => {
+        clearInterval(pingInterval.current);
+        const reconnectDelay = Math.min(2 ** reconnectAttempts * 1000, 60000);
+        reconnectTimeout = setTimeout(connectWebSocket, reconnectDelay);
+        reconnectAttempts++;
+      };
+
+      wsRef.current.onerror = () => {
+        wsRef.current?.close();
+      };
+    };
+
+    connectWebSocket();
+
+    return () => {
+      if (pingInterval.current) clearInterval(pingInterval.current);
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      wsRef.current?.close();
+    };
+  }, []);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const token = await getToken();
+        const url = `${process.env.VITE_BACKEND_URL}/api/orders`;
+        console.log("Fetching orders from:", url);
+        const response = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error fetching orders: ${response.statusText}`);
         }
 
-          wsRef.current.onmessage = (event) => {
-              try {
-                  const data = JSON.parse(event.data)
-                  if (data.type === "pong") return
-
-                  if (data.type === "price_update") {
-                      setPriceUpdates(prev => [...prev, data])
-                  } else if (data.type === "order_completed") {
-                      setOrders(prevOrders => 
-                          prevOrders.map(order => {
-                              const completedOrder = data.orders.find((completed: Order) => completed.id === order.id)
-                              return completedOrder ? { ...order, status: completedOrder.status } : order
-                          })
-                      )
-                  }
-              } catch (error) {
-                  console.error("Error parsing WebSocket message:", error)
-              }
-          }
-
-          wsRef.current.onclose = () => {
-              clearInterval(pingInterval.current)
-              
-              const reconnectDelay = Math.min(2 ** reconnectAttempts * 1000, 60000)
-              reconnectTimeout = setTimeout(connectWebSocket, reconnectDelay)
-              reconnectAttempts++
-          }
-
-          wsRef.current.onerror = () => {
-              wsRef.current?.close()
-          }
+        const data = await response.json();
+        console.log("Orders data:", data);
+        setOrders(data.orders);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      connectWebSocket()
+    fetchOrders();
+  }, [getToken]);
 
-      return () => {
-          if (pingInterval.current) clearInterval(pingInterval.current)
-          if (reconnectTimeout) clearTimeout(reconnectTimeout)
-          wsRef.current?.close()
-      }
-  }, [])
+  const handleOrderCreated = () => {
+    console.log("Orden creada");
+  };
 
-    useEffect(() => {
-        const fetchOrders = async () => {
-            try {
-                const token = await getToken()
-                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/orders`,{
-                    headers: { Authorization: `Bearer ${token}` },
-                })
-
-                if (!response.ok) {
-                    throw new Error(`Error fetching orders: ${response.statusText}`)
-                }
-
-                const data: { orders: Order[] } = await response.json()
-                setOrders(data.orders)
-            } catch (error) {
-                console.error("Error fetching orders:", error)
-            } finally {
-                setIsLoading(false)
-            }
-        }
-
-        fetchOrders()
-    }, [getToken])
-
-    const handleOrderCreated = () => {
-        console.log("Orden creada")
-    }
-
-    if (isLoading) {
-        return (
-            <div className="flex h-[50vh] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
-            </div>
-        )
-    }
-
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="flex h-[50vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
         <Tabs defaultValue="overview" className="space-y-6">
           <div className="sticky top-0 z-10 bg-gradient-to-b from-gray-50 to-transparent dark:from-gray-900 pb-4">
@@ -369,7 +373,7 @@ const Dashboard: React.FC = () => {
         </Tabs>
       </div>
     </div>
-    )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;
