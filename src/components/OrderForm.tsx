@@ -1,50 +1,65 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { useAuth } from "@clerk/clerk-react"
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "./ui/card"
-import { Input } from "./ui/input"
-import { Button } from "./ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
-import { Label } from "./ui/label"
-import { AlertCircle } from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert"
+import type React from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@clerk/clerk-react";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "./ui/card";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Label } from "./ui/label";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 interface OrderFormProps {
-  onOrderCreated: () => void
+  onOrderCreated: () => void;
 }
 
 const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
-  const [pair, setPair] = useState("")
-  const [amount, setAmount] = useState("")
-  const [type, setType] = useState<"buy" | "sell">("buy")
-  const [currentPrice, setCurrentPrice] = useState(0)
-  const [error, setError] = useState<string | null>(null)
-  const { getToken } = useAuth()
+  const [pair, setPair] = useState("");
+  const [amount, setAmount] = useState("");
+  const [type, setType] = useState<"buy" | "sell">("buy");
+  const [currentPrice, setCurrentPrice] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const { getToken } = useAuth();
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:3001")
+    const backendUrl = process.env.VITE_BACKEND_URL || 'http://localhost:3001';
+    const wsUrl = backendUrl.replace('https', 'wss').replace('http', 'ws');
+    const ws = new WebSocket(wsUrl);
 
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      setCurrentPrice(data.price)
-    }
+      const data = JSON.parse(event.data);
+      console.log('WebSocket message in OrderForm:', data);
+      setCurrentPrice(data.price);
+    };
 
-    return () => ws.close()
-  }, [])
+    ws.onerror = (error) => {
+      console.error('WebSocket error in OrderForm:', error);
+    };
+
+    ws.onopen = () => {
+      console.log('Conectado al WebSocket en OrderForm:', wsUrl);
+    };
+
+    return () => ws.close();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
+    e.preventDefault();
+    setError(null);
+
+    console.log('VITE_BACKEND_URL in OrderForm:', process.env.VITE_BACKEND_URL);
 
     try {
-      const token = await getToken()
+      const token = await getToken();
       if (!token) {
-        throw new Error("No se encontró el token de autenticación")
+        throw new Error("No se encontró el token de autenticación");
       }
 
-      const response = await fetch(`${process.env.VITE_BACKEND_URL}/api/orders`, {
+      const url = `${process.env.VITE_BACKEND_URL}/api/orders`;
+      console.log('Submitting order to:', url);
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -56,24 +71,24 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
           type,
           price: currentPrice,
         }),
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Error al crear la orden")
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al crear la orden");
       }
 
-      onOrderCreated()
-      setPair("")
-      setAmount("")
-      setType("buy")
+      onOrderCreated();
+      setPair("");
+      setAmount("");
+      setType("buy");
     } catch (error) {
-      console.error("Error:", error)
-      setError(error instanceof Error ? error.message : "Error desconocido")
+      console.error("Error:", error);
+      setError(error instanceof Error ? error.message : "Error desconocido");
     }
-  }
+  };
 
-  const totalValue = Number.parseFloat(amount) * currentPrice
+  const totalValue = Number.parseFloat(amount) * currentPrice;
 
   return (
     <Card>
@@ -123,8 +138,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
         </Button>
       </CardFooter>
     </Card>
-  )
-}
+  );
+};
 
-export default OrderForm
-
+export default OrderForm;
